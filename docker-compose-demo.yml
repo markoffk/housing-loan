@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  node:
+    image: housing-loan-demo/api/node:1.0
+    container_name: node.api.housing-loan-demo.docker
+    build:
+      context: ./
+      dockerfile: ./docker/node/demo/Dockerfile
+    networks:
+      - global
+    stdin_open: true
+    tty: true
+    labels:
+      traefik.frontend.rule: "HostRegexp:{subdomain}.api.housing-loan-demo.test,api.housing-loan-demo.test"
+    restart: always
+    links:
+      - postgres
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:11
+    container_name: postgres.api.housing-loan-demo.docker
+    environment:
+      - POSTGRES_DB=housing-loan-demo
+      - POSTGRES_USER=housing-loan-demo
+      - POSTGRES_PASSWORD=housing-loan-demo
+    volumes:
+      - ./docker/.local/postgres-demo:/var/lib/postgresql/data
+    networks:
+      - global
+
+networks:
+  global:
+    external: true
